@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>CJF.NamedPipe</RootNamespace>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Title>$(AssemblyName)</Title>
+		<AssemblyName>CJF.NamedPipe</AssemblyName>
+		<Description>NamedPipe Services</Description>
+		<Copyright>Copyright(c) 2025 Chen Jaofeng all right reserved.</Copyright>
+		<Version>1.00.00</Version>
+		<Authors>Chen Jaofeng</Authors>
+		<Company>Chen Jaofeng</Company>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageTags>Utility;NamedPipe;Extensions</PackageTags>
+		<PackageReleaseNotes>First Release</PackageReleaseNotes>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Update="readme.md">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"
+			Version="9.0.7" />
+		<PackageReference Include="System.IO.Pipes" Version="4.3.0" />
+	</ItemGroup>
+</Project>
