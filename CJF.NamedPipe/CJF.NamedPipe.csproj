@@ -10,7 +10,7 @@
 		<AssemblyName>CJF.NamedPipe</AssemblyName>
 		<Description>NamedPipe Services</Description>
 		<Copyright>Copyright(c) 2025 Chen Jaofeng all right reserved.</Copyright>
-		<Version>1.00.00</Version>
+		<Version>1.00.10</Version>
 		<Authors>Chen Jaofeng</Authors>
 		<Company>Chen Jaofeng</Company>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -19,11 +19,22 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
+	<PropertyGroup>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<Description>NamedPipe Services</Description>
+		<PackageIcon>NamedPipe.png</PackageIcon>
+		<PackageProjectUrl>https://github.com/Jaofeng/NamedPipe</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Jaofeng/NamedPipe</RepositoryUrl>
+	</PropertyGroup>
 	<ItemGroup>
 		<None Update="readme.md">
 			<PackagePath>\</PackagePath>
 			<Pack>True</Pack>
 		</None>
+	  <None Update="NamedPipe.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
