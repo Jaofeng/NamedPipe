@@ -1,5 +1,8 @@
 # CJF.NamedPipe.Logging
 
+[![NuGet version](https://badge.fury.io/nu/CJF.NamedPipe.Logging.svg)](https://badge.fury.io/nu/CJF.NamedPipe.Logging)
+
+
 一個基於 Microsoft.Extensions.Logging 的命名管道日誌記錄提供者，可將日誌訊息透過命名管道串流傳送到其他應用程式。
 
 ## 功能特色
@@ -418,7 +421,7 @@ private async Task<bool> BatchHandler(StreamMessage message)
 
 ## 版本歷史
 
-### v1.0.0
+### v1.00.10
 - 初始版本
 - 支援 Microsoft.Extensions.Logging 整合
 - 命名管道串流傳送

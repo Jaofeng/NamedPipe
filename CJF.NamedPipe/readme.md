@@ -1,5 +1,8 @@
 # CJF.NamedPipe
 
+[![NuGet version](https://badge.fury.io/nu/CJF.NamedPipe.svg)](https://badge.fury.io/nu/CJF.NamedPipe)
+
+
 一個基於 ASP.NET Core 依賴注入 (DI) 模式的命名管道 (Named Pipe) 通信庫，支援一般命令和串流命令處理。
 
 ## 功能特色
@@ -265,7 +268,7 @@ dotnet run client
 
 ## 版本歷史
 
-### v1.0.0 (2025-01-18)
+### v1.00.10 (2025-01-18)
 - 🎉 初始版本發布
 - ✅ 支援 ASP.NET Core DI 模式
 - ✅ 雙管道架構實作
