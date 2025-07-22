@@ -27,10 +27,10 @@ public interface IPipeLineProvider
     PipeServer CreateServer(PipeCommandHandler commandHandler, PipeStreamCommandHandler? streamHandler = null);
 
     /// <summary>建立服務標誌文件。</summary>
-    void CreateFlagFile();
+    Task CreateFlagFile();
 
     /// <summary>刪除服務標誌文件。</summary>
-    void CleanFlagFile();
+    Task CleanFlagFile();
 }
 
 /// <summary>命名管道(Pipeline)提供者。</summary>
@@ -82,22 +82,24 @@ public class PipeLineProvider : IPipeLineProvider
     }
 
     /// <summary>建立服務標誌文件。</summary>
-    public void CreateFlagFile()
+    public Task CreateFlagFile()
     {
         try
         {
             EnsureServiceFlagDirectoryExists();
             File.WriteAllText(_opt.ServiceFlagFilePath, DateTime.UtcNow.ToString("o"));
             _logger.LogDebug("已建立服務標誌文件: {FlagFile}", _opt.ServiceFlagFilePath);
+            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "建立服務標誌文件時發生錯誤: {message}", ex.Message);
+            return Task.FromException(ex);
         }
     }
 
     /// <summary>刪除服務標誌文件。</summary>
-    public void CleanFlagFile()
+    public Task CleanFlagFile()
     {
         try
         {
@@ -106,10 +108,12 @@ public class PipeLineProvider : IPipeLineProvider
                 File.Delete(_opt.ServiceFlagFilePath);
                 _logger.LogDebug("已刪除服務標誌文件: {FlagFile}", _opt.ServiceFlagFilePath);
             }
+            return Task.CompletedTask;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "清理服務標誌文件時發生錯誤: {message}", ex.Message);
+            return Task.FromException(ex);
         }
     }
 
