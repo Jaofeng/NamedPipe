@@ -25,6 +25,12 @@ public interface IPipeLineProvider
     /// <param name="streamHandler">串流命令處理器</param>
     /// <returns>返回一個新的 <see cref="PipeServer"/> 實例。</returns>
     PipeServer CreateServer(PipeCommandHandler commandHandler, PipeStreamCommandHandler? streamHandler = null);
+
+    /// <summary>建立服務標誌文件。</summary>
+    void CreateFlagFile();
+
+    /// <summary>刪除服務標誌文件。</summary>
+    void CleanFlagFile();
 }
 
 /// <summary>命名管道(Pipeline)提供者。</summary>
@@ -63,7 +69,7 @@ public class PipeLineProvider : IPipeLineProvider
 
     /// <summary>創建一個新的管道客戶端實例。</summary>
     /// <returns>返回一個新的 <see cref="PipeClient"/> 實例。</returns>
-    public PipeClient CreateClient() => new PipeClient(this);
+    public PipeClient CreateClient() => new(this);
 
     /// <summary>創建一個新的管道服務器實例。</summary>
     /// <param name="commandHandler">命令處理器</param>
@@ -72,7 +78,39 @@ public class PipeLineProvider : IPipeLineProvider
     public PipeServer CreateServer(PipeCommandHandler commandHandler, PipeStreamCommandHandler? streamHandler = null)
     {
         var serverLogger = _loggerFactory.CreateLogger<PipeServer>();
-        return new PipeServer(commandHandler, streamHandler, _opt, serverLogger);
+        return new PipeServer(this, commandHandler, streamHandler, _opt, serverLogger);
+    }
+
+    /// <summary>建立服務標誌文件。</summary>
+    public void CreateFlagFile()
+    {
+        try
+        {
+            EnsureServiceFlagDirectoryExists();
+            File.WriteAllText(_opt.ServiceFlagFilePath, DateTime.UtcNow.ToString("o"));
+            _logger.LogDebug("已建立服務標誌文件: {FlagFile}", _opt.ServiceFlagFilePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "建立服務標誌文件時發生錯誤: {message}", ex.Message);
+        }
+    }
+
+    /// <summary>刪除服務標誌文件。</summary>
+    public void CleanFlagFile()
+    {
+        try
+        {
+            if (File.Exists(_opt.ServiceFlagFilePath))
+            {
+                File.Delete(_opt.ServiceFlagFilePath);
+                _logger.LogDebug("已刪除服務標誌文件: {FlagFile}", _opt.ServiceFlagFilePath);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "清理服務標誌文件時發生錯誤: {message}", ex.Message);
+        }
     }
 
     /// <summary>確保服務標誌文件的目錄存在</summary>
@@ -82,4 +120,6 @@ public class PipeLineProvider : IPipeLineProvider
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             Directory.CreateDirectory(directory);
     }
+
+
 }
