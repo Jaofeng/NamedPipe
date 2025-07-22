@@ -7,6 +7,7 @@ namespace CJF.NamedPipe;
 /// <summary>用於與客戶端進行命名管道通信的服務端</summary>
 public class PipeServer
 {
+    private readonly IPipeLineProvider _Provider;
     private readonly PipeCommandHandler _CommandHandler;
     private readonly PipeStreamCommandHandler? _StreamHandler;
     private readonly PipeLineOptions _Options;
@@ -17,12 +18,14 @@ public class PipeServer
     private bool _IsRunning;
 
     /// <summary>初始化管道服務器</summary>
+    /// <param name="provider">管道提供者</param>
     /// <param name="commandHandler">處理命令的回調</param>
     /// <param name="streamHandler">處理串流命令的回調</param>
     /// <param name="options">管道配置選項</param>
     /// <param name="logger">日誌記錄器</param>
-    public PipeServer(PipeCommandHandler commandHandler, PipeStreamCommandHandler? streamHandler = null, PipeLineOptions? options = null, ILogger<PipeServer>? logger = null)
+    internal PipeServer(IPipeLineProvider provider, PipeCommandHandler commandHandler, PipeStreamCommandHandler? streamHandler = null, PipeLineOptions? options = null, ILogger<PipeServer>? logger = null)
     {
+        _Provider = provider ?? throw new ArgumentNullException(nameof(provider));
         _CommandHandler = commandHandler ?? throw new ArgumentNullException(nameof(commandHandler));
         _StreamHandler = streamHandler;
         _Options = options ?? new PipeLineOptions();
@@ -31,7 +34,7 @@ public class PipeServer
     }
 
     /// <summary>啟動服務器</summary>
-    public void Start()
+    public async Task StartAsync()
     {
         if (_IsRunning)
             return;
@@ -39,9 +42,7 @@ public class PipeServer
         _IsRunning = true;
 
         // 創建標誌文件表示服務正在執行
-        EnsureServiceFlagDirectoryExists();
-        File.WriteAllText(_Options.ServiceFlagFilePath, DateTime.Now.ToString());
-        _Logger?.LogInformation("命名管道服務已啟動，標誌文件: {FlagFile}", _Options.ServiceFlagFilePath);
+        await _Provider.CreateFlagFile();
 
         // 啟動一般命令監聽任務
         _CommandServerTask = Task.Run(() => ListenForCommandClientsAsync());
@@ -83,18 +84,7 @@ public class PipeServer
         }
 
         // 刪除標誌文件
-        try
-        {
-            if (File.Exists(_Options.ServiceFlagFilePath))
-            {
-                File.Delete(_Options.ServiceFlagFilePath);
-                _Logger?.LogInformation("已刪除服務標誌文件: {FlagFile}", _Options.ServiceFlagFilePath);
-            }
-        }
-        catch (Exception ex)
-        {
-            _Logger?.LogWarning(ex, "刪除服務標誌文件時發生錯誤: {FlagFile}", _Options.ServiceFlagFilePath);
-        }
+        await _Provider.CleanFlagFile();
     }
 
     /// <summary>監聽一般命令客戶端連接</summary>
