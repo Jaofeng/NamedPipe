@@ -43,7 +43,7 @@ public class ConcurrentPipeTests : IDisposable
     public async Task ConcurrentPipes_ShouldNotInterfereWithEachOther()
     {
         // Arrange
-        _server.Start();
+        await _server.StartAsync();
         await Task.Delay(300); // 增加等待時間確保服務器完全啟動
 
         Task<(PipeResults result, string message)> streamTask;
