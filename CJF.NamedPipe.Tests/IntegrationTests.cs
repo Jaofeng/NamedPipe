@@ -40,11 +40,22 @@ public class IntegrationTests : IDisposable
     public async Task SendCommand_ShouldReturnResponse()
     {
         // Arrange
-        _server.Start();
-        await Task.Delay(100); // 等待服務器啟動
+        await _server.StartAsync();
+        
+        // 等待服務器完全啟動，使用更可靠的方式
+        var serviceReady = await _client.WaitForServiceAsync(3000);
+        Assert.True(serviceReady, "服務在3秒內未能啟動");
 
         try
         {
+            // 額外驗證：檢查服務狀態
+            var isRunning = _provider.IsServiceRunning();
+            Assert.True(isRunning, "服務標誌文件顯示服務未運行");
+            
+            // 額外驗證：測試管道連接
+            var canConnect = await _client.TestPipeConnection();
+            Assert.True(canConnect, "無法連接到管道");
+
             // Act
             var (result, message) = await _client.SendCommandAsync("test", "arg1", "arg2");
 
@@ -64,8 +75,11 @@ public class IntegrationTests : IDisposable
     public async Task SendStreamCommand_ShouldReceiveStreamMessages()
     {
         // Arrange
-        _server.Start();
-        await Task.Delay(100); // 等待服務器啟動
+        await _server.StartAsync();
+        
+        // 等待服務器完全啟動，使用更可靠的方式
+        var serviceReady = await _client.WaitForServiceAsync(3000);
+        Assert.True(serviceReady, "服務在3秒內未能啟動");
 
         var receivedMessages = new List<StreamMessage>();
 
@@ -104,7 +118,7 @@ public class IntegrationTests : IDisposable
         var canConnectBefore = await _client.TestPipeConnection();
 
         // 啟動服務器
-        _server.Start();
+        await _server.StartAsync();
         await Task.Delay(300); // 等待服務器完全啟動
         var canConnectAfter = await _client.TestPipeConnection();
 
@@ -132,7 +146,7 @@ public class IntegrationTests : IDisposable
         var canConnectBefore = await _client.TestPipeConnection();
 
         // 啟動服務器
-        _server.Start();
+        await _server.StartAsync();
         await Task.Delay(100);
         var canConnectAfter = await _client.TestPipeConnection();
 
