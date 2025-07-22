@@ -46,7 +46,7 @@ public class PipeLogger([NotNull] PipeLoggerProvider provider) : ILogger
             Message = message,
             Exception = exception?.ToString()
         };
-        _Provider.SendLogEntry(logEntry);
+        _Provider.SendLogEntry(logEntry).Wait(); // 等待異步操作完成
     }
 }
 #endregion
@@ -56,15 +56,12 @@ public class PipeLogger([NotNull] PipeLoggerProvider provider) : ILogger
 public static class PipeLoggerExtensions
 {
     /// <summary>新增檔案記錄器。</summary>
-    public static ILoggingBuilder AddPipeLogger(this ILoggingBuilder builder)
+    /// <param name="builder">日誌建構器。</param>
+    /// <param name="configure">配置選項的委託。</param>
+    /// <returns>返回日誌建構器。</returns>
+    public static ILoggingBuilder AddPipeLogger(this ILoggingBuilder builder, Action<PipeLoggerOptions>? configure = null)
     {
-        builder.Services.AddSingleton<IPipeLoggerProvider, PipeLoggerProvider>();
-        builder.Services.AddSingleton<ILoggerProvider>(provider => provider.GetRequiredService<IPipeLoggerProvider>());
-        return builder;
-    }
-    /// <summary>新增檔案記錄器。</summary>
-    public static ILoggingBuilder AddPipeLogger(this ILoggingBuilder builder, Action<PipeLoggerOptions> configure)
-    {
+        configure ??= options => { };
         builder.Services.Configure(configure);
         builder.Services.AddSingleton<IPipeLoggerProvider, PipeLoggerProvider>();
         builder.Services.AddSingleton<ILoggerProvider>(provider => provider.GetRequiredService<IPipeLoggerProvider>());
