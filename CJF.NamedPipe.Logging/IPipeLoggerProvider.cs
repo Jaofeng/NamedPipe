@@ -14,7 +14,7 @@ public interface IPipeLoggerProvider : ILoggerProvider
 
     /// <summary>發送記錄條目到命名管道。</summary>
     /// <param name="logEntry">要發送的記錄條目。</param>
-    void SendLogEntry(LogEntry logEntry);
+    Task SendLogEntry(LogEntry logEntry);
 
     /// <summary>註冊日誌串流處理器。</summary>
     /// <param name="guid">唯一識別符，用於識別串流處理器。</param>

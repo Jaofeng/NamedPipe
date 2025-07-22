@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -12,7 +13,7 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
 {
     /// <summary>命名管道客戶端。</summary>
     // private NamedPipeClientStream? _PipeClient;
-    private readonly Dictionary<string, Func<StreamMessage, Task<bool>>> _StreamHandlers = [];
+    private readonly ConcurrentDictionary<string, Func<StreamMessage, Task<bool>>> _StreamHandlers = [];
     /// <summary>用於同步存取的鎖。</summary>
     private readonly object _lock = new();
 
@@ -27,7 +28,7 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
 
     /// <summary>發送記錄條目到命名管道。</summary>
     /// <param name="logEntry">要發送的記錄條目。</param>
-    public async void SendLogEntry(LogEntry logEntry)
+    public async Task SendLogEntry(LogEntry logEntry)
     {
         if (_disposed) return;
         var guids = _StreamHandlers.Keys.ToArray();
@@ -53,11 +54,11 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
                 if (!_StreamHandlers.TryGetValue(guid, out var handler) || handler is null)
                     continue;
                 if (await handler!(streamMessage) is not true)
-                    _StreamHandlers.Remove(guid);
+                    _StreamHandlers.TryRemove(guid, out _);
             }
             catch
             {
-                _StreamHandlers.Remove(guid);
+                _StreamHandlers.TryRemove(guid, out _);
             }
         }
     }
@@ -88,7 +89,7 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
             return Task.FromResult(false);
         lock (_lock)
         {
-            _StreamHandlers.Add(guid, writer);
+            _StreamHandlers.TryAdd(guid, writer);
         }
         return Task.FromResult(true);
     }
@@ -104,9 +105,9 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
         // 移除處理器
         lock (_lock)
         {
-            _StreamHandlers.Remove(guid);
+            _StreamHandlers.TryRemove(guid, out _);
         }
-        Console.WriteLine($"已取消註冊日誌串流處理器: {guid}");
+        // Console.WriteLine($"已取消註冊日誌串流處理器: {guid}");
         return Task.FromResult(true);
     }
 
