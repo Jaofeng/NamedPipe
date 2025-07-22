@@ -20,19 +20,23 @@ public delegate Task PipeStreamCommandHandler(string command, string[] args, Fun
 public sealed class PipeLineOptions
 {
     /// <summary>獲取或設置一般命令管道名稱。</summary>
-    public string CommandPipeName { get; set; } = PipeConstants.CommandPipeName;
+    public string CommandPipeName { get; set; } = $"{AppDomain.CurrentDomain.FriendlyName}.Command.Pipe";
 
     /// <summary>獲取或設置串流命令管道名稱。</summary>
-    public string StreamPipeName { get; set; } = PipeConstants.StreamPipeName;
+    public string StreamPipeName { get; set; } = $"{AppDomain.CurrentDomain.FriendlyName}.Stream.Pipe";
 
     /// <summary>獲取或設置管道的最大客戶端數量。</summary>
     public int MaxClients { get; set; } = -1;
 
     /// <summary>獲取或設置服務執行的標誌文件路徑。</summary>
-    public string ServiceFlagFilePath { get; set; } = PipeConstants.ServiceFlagFilePath;
+    public string ServiceFlagFilePath { get; set; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.FriendlyName + ".flag");
 
     /// <summary>獲取或設置應用程式資料檔案路徑。</summary>
-    public string ApplicationDataPath { get; set; } = PipeConstants.ApplicationDataPath;
+    public string ApplicationDataPath { get; set; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        AppDomain.CurrentDomain.FriendlyName);
 
     /// <summary>獲取或設置連接超時時間（毫秒）。</summary>
     public int ConnectionTimeoutMs { get; set; } = 5000;
