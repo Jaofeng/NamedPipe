@@ -37,7 +37,7 @@ public class PipeLineService(IPipeLineProvider pipeLineProvider, ILogger<PipeLin
             _logger.LogInformation("正在啟動命名管道服務...");
 
             _pipeServer = _pipeLineProvider.CreateServer(_commandHandler, _streamHandler);
-            _pipeServer.Start();
+            await _pipeServer.StartAsync();
 
             _logger.LogInformation("命名管道服務已啟動");
 
