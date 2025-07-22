@@ -132,7 +132,7 @@ public interface IPipeLoggerProvider : ILoggerProvider
 
     /// <summary>發送記錄條目到命名管道。</summary>
     /// <param name="logEntry">要發送的記錄條目。</param>
-    void SendLogEntry(LogEntry logEntry);
+    Task SendLogEntry(LogEntry logEntry);
 
     /// <summary>註冊日誌串流處理器。</summary>
     /// <param name="guid">唯一識別符，用於識別串流處理器。</param>
@@ -421,11 +421,19 @@ private async Task<bool> BatchHandler(StreamMessage message)
 
 ## 版本歷史
 
-### v1.00.10
-- 初始版本
-- 支援 Microsoft.Extensions.Logging 整合
-- 命名管道串流傳送
-- 多重處理器支援
+### v1.01.20 (2025-07-22)
+- 🔧 **非同步優化**: 將 SendLogEntry 方法修改為非同步，改善日誌處理效能
+- 🔧 **執行緒安全**: 使用 ConcurrentDictionary 來管理串流處理器，改善效能和執行緒安全性
+- 🔧 **方法改善**: 將 SendLogEntry 方法的調用改為等待異步操作完成，確保日誌條目正確處理
+- ✅ **配置擴展**: 新增可選的配置參數以擴展 AddPipeLogger 方法
+- 🔧 **資源管理**: 在 Dispose 方法中新增日誌串流處理器的清理邏輯
+- 🧪 **測試改善**: 改善測試中的非同步處理和驗證機制
+
+### v1.00.10 (2025-07-18)
+- 🎉 初始版本發布
+- ✅ 支援 Microsoft.Extensions.Logging 整合
+- ✅ 命名管道串流傳送
+- ✅ 多重處理器支援
 
 ## 授權
 
