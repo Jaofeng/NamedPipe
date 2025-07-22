@@ -90,6 +90,18 @@ public class PipeClient
             {
                 return (PipeResults.Timeout, "連接超時，請確保服務正在執行。");
             }
+            catch (IOException ex)
+            {
+                return (PipeResults.ConnectionError, $"連接到服務時發生錯誤: {ex.Message}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return (PipeResults.ConnectionError, "無法訪問命名管道，請檢查權限。");
+            }
+            catch (Exception ex)
+            {
+                return (PipeResults.Failure, $"與服務通信時發生錯誤: {ex.Message}");
+            }
 
             if (!client.IsConnected)
                 return (PipeResults.ConnectionError, "無法連接到服務。");
