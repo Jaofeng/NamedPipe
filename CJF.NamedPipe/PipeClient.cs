@@ -117,7 +117,7 @@ public class PipeClient
     /// <param name="streamHandler">串流訊息處理器</param>
     /// <param name="readWriteTimeout">讀寫超時時間</param>
     /// <returns>服務的響應</returns>
-    private async Task<(PipeResults Result, string Message)> SendMessageAndHandleResponseAsync(
+    private static async Task<(PipeResults Result, string Message)> SendMessageAndHandleResponseAsync(
         NamedPipeClientStream client, 
         CommandMessage message, 
         bool isStreaming, 
