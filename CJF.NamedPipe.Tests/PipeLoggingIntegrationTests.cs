@@ -97,7 +97,7 @@ public class PipeLoggingIntegrationTests : IDisposable
         });
 
         // 啟動 PipeLineService
-        _server.Start();
+        await _server.StartAsync();
         await Task.Delay(100);
 
         try
@@ -311,7 +311,33 @@ public class PipeLoggingIntegrationTests : IDisposable
 
     public void Dispose()
     {
-        _server?.StopAsync().Wait();
+        // 清理所有註冊的日誌串流處理器
+        var handlerGuids = new[]
+        {
+            "log-stream-handler",
+            "service-log-handler", 
+            "console-handler",
+            "file-handler",
+            "network-handler",
+            "dynamic-handler-1",
+            "dynamic-handler-2",
+            "exception-log-handler",
+            "performance-handler"
+        };
+
+        foreach (var guid in handlerGuids)
+        {
+            try
+            {
+                _loggerProvider?.UnregisterPipeStream(guid).Wait(1000);
+            }
+            catch
+            {
+                // 忽略取消註冊時的例外
+            }
+        }
+
+        _server?.StopAsync().Wait(3000);
         _host?.Dispose();
     }
 }
