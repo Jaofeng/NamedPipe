@@ -179,7 +179,7 @@ public class PipeLoggerProviderTests : IDisposable
         };
 
         // Act
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         
         // 等待異步處理完成
         await Task.Delay(100);
@@ -222,7 +222,7 @@ public class PipeLoggerProviderTests : IDisposable
         };
 
         // Act
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         
         // 等待異步處理完成
         await Task.Delay(100);
@@ -255,12 +255,12 @@ public class PipeLoggerProviderTests : IDisposable
         };
 
         // Act
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         await Task.Delay(100);
 
         // 發送第二條訊息
         logEntry.Message = "第二條訊息";
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         await Task.Delay(100);
 
         // Assert
@@ -291,12 +291,12 @@ public class PipeLoggerProviderTests : IDisposable
         };
 
         // Act
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         await Task.Delay(100);
 
         // 發送第二條訊息
         logEntry.Message = "第二條訊息";
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         await Task.Delay(100);
 
         // Assert
@@ -318,7 +318,7 @@ public class PipeLoggerProviderTests : IDisposable
         };
 
         // Act & Assert - 不應該拋出例外
-        _provider.SendLogEntry(logEntry);
+        _provider.SendLogEntry(logEntry).Wait();
     }
 
     /// <summary>測試 Dispose 後不會處理日誌條目</summary>
@@ -345,7 +345,7 @@ public class PipeLoggerProviderTests : IDisposable
 
         // Act
         _provider.Dispose();
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         
         // 等待異步處理完成
         await Task.Delay(100);
@@ -390,7 +390,7 @@ public class PipeLoggerProviderTests : IDisposable
         };
 
         // Act
-        _provider.SendLogEntry(logEntry);
+        await _provider.SendLogEntry(logEntry);
         await Task.Delay(100);
 
         // Assert
