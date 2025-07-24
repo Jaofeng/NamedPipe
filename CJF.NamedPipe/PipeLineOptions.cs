@@ -33,11 +33,6 @@ public sealed class PipeLineOptions
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         AppDomain.CurrentDomain.FriendlyName, AppDomain.CurrentDomain.FriendlyName + ".flag");
 
-    /// <summary>獲取或設置應用程式資料檔案路徑。</summary>
-    public string ApplicationDataPath { get; set; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        AppDomain.CurrentDomain.FriendlyName);
-
     /// <summary>獲取或設置連接超時時間（毫秒）。</summary>
     public int ConnectionTimeoutMs { get; set; } = 5000;
 
