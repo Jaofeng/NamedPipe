@@ -132,9 +132,6 @@ public class PipeLineOptions
     
     /// <summary>服務標誌文件路徑</summary>
     public string ServiceFlagFilePath { get; set; } = "...";
-    
-    /// <summary>應用程式資料路徑</summary>
-    public string ApplicationDataPath { get; set; } = "...";
 }
 ```
 
@@ -267,6 +264,9 @@ dotnet run client
 - **PipeStreamCommandHandler**: 串流命令處理器委託
 
 ## 版本歷史
+
+### v1.01.25 (2025-08-01)
+- 🔧 **程式碼清理**: 移除 PipeLineOptions.ApplicationDataPath 屬性
 
 ### v1.01.20 (2025-07-22)
 - 🔧 **效能改善**: 將 PipeServer 的啟動方法修改為非同步，改善服務啟動效能
