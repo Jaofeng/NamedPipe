@@ -10,12 +10,15 @@
 		<AssemblyName>CJF.NamedPipe</AssemblyName>
 		<Description>NamedPipe Services</Description>
 		<Copyright>Copyright(c) 2025 Chen Jaofeng all right reserved.</Copyright>
-		<Version>1.01.20</Version>
+		<Version>1.01.25</Version>
 		<Authors>Chen Jaofeng</Authors>
 		<Company>Chen Jaofeng</Company>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageTags>Utility;NamedPipe;Extensions</PackageTags>
 		<PackageReleaseNotes>
+			### v1.01.25 (2025-08-01)
+			- 🔧 **程式碼清理**: 移除 PipeLineOptions.ApplicationDataPath 屬性
+			
 			### v1.01.20 (2025-07-22)
 			- 🔧 **效能改善**: 將 PipeServer 的啟動方法修改為非同步，改善服務啟動效能
 			- 🔧 **架構重構**: 重構 PipeServer 類別，新增對 IPipeLineProvider 的依賴
