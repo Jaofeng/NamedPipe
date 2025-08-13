@@ -267,19 +267,21 @@ dotnet run client
 
 ### v1.01.32 (2025-08-13)
 - 🔧 **效能改善**: 修改 `PipeServer` 類別，將 `CancellationTokenSource` 改為可為 null，並在啟動和停止方法中新增取消邏輯，改善非同步處理的穩定性
+- ✅ **新增方法**: 新增 `Start` 和 `Stop` 同步方法
+- 🔧 **介面修改**: 修改 `StartAsync` 和 `StopAsync` 非同步方法傳入 `CancellationToken` 型態參數
 
 ### v1.01.25 (2025-08-01)
-- 🔧 **程式碼清理**: 移除 PipeLineOptions.ApplicationDataPath 屬性
+- 🔧 **程式碼清理**: 移除 `PipeLineOptions.ApplicationDataPath` 屬性
 
 ### v1.01.20 (2025-07-22)
-- 🔧 **效能改善**: 將 PipeServer 的啟動方法修改為非同步，改善服務啟動效能
-- 🔧 **架構重構**: 重構 PipeServer 類別，新增對 IPipeLineProvider 的依賴
+- 🔧 **效能改善**: 將 `PipeServer` 的啟動方法修改為非同步，改善服務啟動效能
+- 🔧 **架構重構**: 重構 `PipeServer` 類別，新增對 `IPipeLineProvider` 的依賴
 - 🔧 **非同步優化**: 將啟動和停止服務器的方法修改為非同步
-- ✅ **服務管理**: 新增 CreateFlagFile 和 CleanFlagFile 方法管理服務標誌文件
+- ✅ **服務管理**: 新增 `CreateFlagFile` 和 `CleanFlagFile` 方法管理服務標誌文件
 - 🛡️ **錯誤處理**: 新增異常處理以改善與服務通信的錯誤回報
-- 🔧 **程式碼優化**: 將 SendMessageAndHandleResponseAsync 方法修改為 static 方法
-- 🧹 **程式碼清理**: 移除不再使用的 PipeConstants 類別及其相關常量
-- 📝 **配置更新**: 更新 PipeLineOptions 類別中的管道名稱和路徑設置
+- 🔧 **程式碼優化**: 將 `SendMessageAndHandleResponseAsync` 方法修改為 `static` 方法
+- 🧹 **程式碼清理**: 移除不再使用的 `PipeConstants` 類別及其相關常量
+- 📝 **配置更新**: 更新 `PipeLineOptions` 類別中的管道名稱和路徑設置
 - 🧪 **測試改善**: 改善測試中的伺服器啟動方法為非同步，新增服務狀態和管道連接的驗證
 
 ### v1.00.10 (2025-07-18)
