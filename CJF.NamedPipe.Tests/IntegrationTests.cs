@@ -39,8 +39,9 @@ public class IntegrationTests : IDisposable
     [Fact]
     public async Task SendCommand_ShouldReturnResponse()
     {
+        var cancellationToken = new CancellationTokenSource();
         // Arrange
-        await _server.StartAsync();
+        await _server.StartAsync(cancellationToken.Token);
         
         // 等待服務器完全啟動，使用更可靠的方式
         var serviceReady = await _client.WaitForServiceAsync(3000);
@@ -66,7 +67,7 @@ public class IntegrationTests : IDisposable
         }
         finally
         {
-            await _server.StopAsync();
+            await _server.StopAsync(cancellationToken.Token);
         }
     }
 
@@ -74,8 +75,9 @@ public class IntegrationTests : IDisposable
     [Fact]
     public async Task SendStreamCommand_ShouldReceiveStreamMessages()
     {
+        var cancellationToken = new CancellationTokenSource();
         // Arrange
-        await _server.StartAsync();
+        await _server.StartAsync(cancellationToken.Token);
         
         // 等待服務器完全啟動，使用更可靠的方式
         var serviceReady = await _client.WaitForServiceAsync(3000);
@@ -98,7 +100,7 @@ public class IntegrationTests : IDisposable
         }
         finally
         {
-            await _server.StopAsync();
+            await _server.StopAsync(cancellationToken.Token);
         }
     }
 
@@ -109,21 +111,22 @@ public class IntegrationTests : IDisposable
         // 在並發測試環境中，IsServiceRunning() 檢查的是全域標誌文件
         // 多個測試同時運行時會互相影響，因此我們改為測試連接功能
         // 這更能反映實際的服務可用性
-        
+        var cancellationToken = new CancellationTokenSource();
+
         // Arrange - 確保開始時服務器停止
-        await _server.StopAsync();
+        await _server.StopAsync(cancellationToken.Token);
         await Task.Delay(300); // 等待完全停止
         
         // Act - 測試連接功能而不是全域狀態
         var canConnectBefore = await _client.TestPipeConnection();
 
         // 啟動服務器
-        await _server.StartAsync();
+        await _server.StartAsync(cancellationToken.Token);
         await Task.Delay(300); // 等待服務器完全啟動
         var canConnectAfter = await _client.TestPipeConnection();
 
         // 停止服務器
-        await _server.StopAsync();
+        await _server.StopAsync(cancellationToken.Token);
         await Task.Delay(300); // 等待完全停止
         var canConnectAfterStop = await _client.TestPipeConnection();
 
@@ -145,13 +148,15 @@ public class IntegrationTests : IDisposable
         // Arrange & Act - 服務器未啟動
         var canConnectBefore = await _client.TestPipeConnection();
 
+        var cancellationToken = new CancellationTokenSource();
+
         // 啟動服務器
-        await _server.StartAsync();
+        await _server.StartAsync(cancellationToken.Token);
         await Task.Delay(100);
         var canConnectAfter = await _client.TestPipeConnection();
 
         // 停止服務器
-        await _server.StopAsync();
+        await _server.StopAsync(cancellationToken.Token);
         await Task.Delay(100);
         var canConnectAfterStop = await _client.TestPipeConnection();
 
@@ -184,7 +189,7 @@ public class IntegrationTests : IDisposable
 
     public void Dispose()
     {
-        _server?.StopAsync().Wait();
+        _server?.Stop();
         _host?.Dispose();
     }
 }
