@@ -42,8 +42,9 @@ public class ConcurrentPipeTests : IDisposable
     [Fact]
     public async Task ConcurrentPipes_ShouldNotInterfereWithEachOther()
     {
+        var cancellationToken = new CancellationTokenSource().Token;
         // Arrange
-        await _server.StartAsync();
+        await _server.StartAsync(cancellationToken);
         await Task.Delay(300); // 增加等待時間確保服務器完全啟動
 
         Task<(PipeResults result, string message)> streamTask;
@@ -179,7 +180,7 @@ public class ConcurrentPipeTests : IDisposable
         finally
         {
             _shouldStopStreaming = true;
-            await _server.StopAsync();
+            await _server.StopAsync(cancellationToken);
         }
     }
 
@@ -240,7 +241,7 @@ public class ConcurrentPipeTests : IDisposable
     public void Dispose()
     {
         _shouldStopStreaming = true;
-        _server?.StopAsync().Wait();
+        _server?.Stop();
         _host?.Dispose();
     }
 }
