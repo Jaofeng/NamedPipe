@@ -16,9 +16,10 @@
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageTags>Utility;NamedPipe;Extensions</PackageTags>
 		<PackageReleaseNotes>
-			v1.01.32 (2025-08-13)
-			- 修改 `PipeServer` 類別，將 `CancellationTokenSource` 改為可為 null，並在啟動和停止方法中新增取消邏輯，改善非同步處理的穩定性
-			
+v1.01.32 (2025-08-13)
+- 🔧 **效能改善**: 修改 `PipeServer` 類別，將 `CancellationTokenSource` 改為可為 null，並在啟動和停止方法中新增取消邏輯，改善非同步處理的穩定性
+- ✅ **新增方法**: 新增 `Start` 和 `Stop` 同步方法
+- 🔧 **介面修改**: 修改 `StartAsync` 和 `StopAsync` 非同步方法傳入 `CancellationToken` 型態參數
 		</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
