@@ -97,7 +97,7 @@ public class PipeLoggingIntegrationTests : IDisposable
         });
 
         // 啟動 PipeLineService
-        await _server.StartAsync();
+        _server.Start();
         await Task.Delay(100);
 
         try
@@ -119,7 +119,7 @@ public class PipeLoggingIntegrationTests : IDisposable
         }
         finally
         {
-            await _server.StopAsync();
+            _server.Stop();
         }
     }
 
@@ -337,7 +337,7 @@ public class PipeLoggingIntegrationTests : IDisposable
             }
         }
 
-        _server?.StopAsync().Wait(3000);
+        _server?.Stop();
         _host?.Dispose();
     }
 }
