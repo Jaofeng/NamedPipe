@@ -12,7 +12,7 @@ public class PipeServer
     private readonly PipeStreamCommandHandler? _StreamHandler;
     private readonly PipeLineOptions _Options;
     private readonly ILogger<PipeServer>? _Logger;
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private CancellationTokenSource? _cancellationTokenSource;
     private Task? _CommandServerTask;
     private Task? _StreamServerTask;
     private bool _IsRunning;
@@ -34,31 +34,32 @@ public class PipeServer
     }
 
     /// <summary>啟動服務器</summary>
-    public async Task StartAsync()
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         if (_IsRunning)
             return;
 
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        cancellationToken = _cancellationTokenSource.Token;
         _IsRunning = true;
 
         // 創建標誌文件表示服務正在執行
         await _Provider.CreateFlagFile();
 
         // 啟動一般命令監聽任務
-        _CommandServerTask = Task.Run(() => ListenForCommandClientsAsync());
+        _CommandServerTask = Task.Run(() => ListenForCommandClientsAsync(cancellationToken), cancellationToken);
 
         // 啟動串流命令監聽任務
-        _StreamServerTask = Task.Run(() => ListenForStreamClientsAsync());
+        _StreamServerTask = Task.Run(() => ListenForStreamClientsAsync(cancellationToken), cancellationToken);
     }
 
     /// <summary>停止服務器</summary>
-    public async Task StopAsync()
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
         if (!_IsRunning)
             return;
 
         _IsRunning = false;
-        _cancellationTokenSource.Cancel();
 
         // 等待服務器任務完成
         var tasks = new List<Task>();
@@ -72,6 +73,10 @@ public class PipeServer
             try
             {
                 await Task.WhenAll(tasks);
+            }
+            catch (TaskCanceledException)
+            {
+                // 預期的取消異常，忽略
             }
             catch (OperationCanceledException)
             {
@@ -88,9 +93,9 @@ public class PipeServer
     }
 
     /// <summary>監聽一般命令客戶端連接</summary>
-    private async Task ListenForCommandClientsAsync()
+    private async Task ListenForCommandClientsAsync(CancellationToken cancellationToken)
     {
-        while (!_cancellationTokenSource.Token.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
@@ -102,7 +107,7 @@ public class PipeServer
                     PipeOptions.Asynchronous);
 
                 // 等待客戶端連接
-                await server.WaitForConnectionAsync(_cancellationTokenSource.Token);
+                await server.WaitForConnectionAsync(cancellationToken);
 
                 // 處理一般命令請求（同步處理以確保服務器流不會過早關閉）
                 await HandleCommandRequestAsync(server);
@@ -110,7 +115,7 @@ public class PipeServer
                 // 處理完成後關閉服務器流
                 server.Dispose();
             }
-            catch (OperationCanceledException)
+            catch (Exception ex) when (ex is OperationCanceledException || ex is TaskCanceledException)
             {
                 // 預期的取消異常，退出循環
                 break;
@@ -121,10 +126,11 @@ public class PipeServer
                 // 短暫延遲以避免在錯誤情況下的快速循環
                 try
                 {
-                    await Task.Delay(1000, _cancellationTokenSource.Token);
+                    await Task.Delay(1000, cancellationToken);
                 }
-                catch (OperationCanceledException)
+                catch (Exception exx) when (exx is OperationCanceledException || exx is TaskCanceledException)
                 {
+                    // 忽略取消異常，退出循環
                     break;
                 }
             }
@@ -132,21 +138,21 @@ public class PipeServer
     }
 
     /// <summary>監聽串流命令客戶端連接</summary>
-    private async Task ListenForStreamClientsAsync()
+    private async Task ListenForStreamClientsAsync(CancellationToken cancellationToken)
     {
-        while (!_cancellationTokenSource.Token.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-            var server = new NamedPipeServerStream(
-                _Options.StreamPipeName,
-                PipeDirection.InOut,
-                _Options.MaxClients == -1 ? NamedPipeServerStream.MaxAllowedServerInstances : _Options.MaxClients,
-                PipeTransmissionMode.Byte,
-                PipeOptions.Asynchronous);
+                var server = new NamedPipeServerStream(
+                    _Options.StreamPipeName,
+                    PipeDirection.InOut,
+                    _Options.MaxClients == -1 ? NamedPipeServerStream.MaxAllowedServerInstances : _Options.MaxClients,
+                    PipeTransmissionMode.Byte,
+                    PipeOptions.Asynchronous);
 
                 // 等待客戶端連接
-                await server.WaitForConnectionAsync(_cancellationTokenSource.Token);
+                await server.WaitForConnectionAsync(cancellationToken);
 
                 // 處理串流命令請求（異步處理，因為串流可能需要長時間運行）
                 _ = Task.Run(async () =>
@@ -160,9 +166,9 @@ public class PipeServer
                         // 確保服務器流在處理完成後被關閉
                         server.Dispose();
                     }
-                });
+                }, cancellationToken);
             }
-            catch (OperationCanceledException)
+            catch (Exception ex) when (ex is OperationCanceledException || ex is TaskCanceledException)
             {
                 // 預期的取消異常，退出循環
                 break;
@@ -173,9 +179,9 @@ public class PipeServer
                 // 短暫延遲以避免在錯誤情況下的快速循環
                 try
                 {
-                    await Task.Delay(1000, _cancellationTokenSource.Token);
+                    await Task.Delay(1000, cancellationToken);
                 }
-                catch (OperationCanceledException)
+                catch
                 {
                     break;
                 }
@@ -272,7 +278,7 @@ public class PipeServer
     /// <returns>處理結果</returns>
     private async Task HandleStreamCommandAsync(NamedPipeServerStream server, CommandMessage message)
     {
-        var cancellationToken = _cancellationTokenSource.Token;
+        var cancellationToken = _cancellationTokenSource!.Token;
 
         // 創建串流寫入器
         async Task<bool> StreamWriter(StreamMessage streamMessage)
@@ -361,7 +367,7 @@ public class PipeServer
         // 讀取消息長度
         byte[] lengthBuffer = new byte[4];
         int bytesRead = await server.ReadAsync(lengthBuffer.AsMemory(0, 4));
-        
+
         // 如果沒有讀取到足夠的數據，可能是連接測試
         if (bytesRead < 4)
         {
@@ -370,7 +376,7 @@ public class PipeServer
         }
 
         int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
-        
+
         // 驗證消息長度的合理性
         if (messageLength <= 0 || messageLength > 1024 * 1024) // 限制為 1MB
         {
@@ -398,7 +404,7 @@ public class PipeServer
     /// <returns>如果是連接中斷異常則返回 true</returns>
     private static bool IsConnectionInterrupted(IOException ex)
     {
-        return ex.Message.Contains("Broken pipe") || 
+        return ex.Message.Contains("Broken pipe") ||
                ex.Message.Contains("Connection reset") ||
                ex.Message.Contains("管道已結束");
     }
