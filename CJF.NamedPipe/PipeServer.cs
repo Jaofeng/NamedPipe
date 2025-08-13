@@ -34,6 +34,59 @@ public class PipeServer
     }
 
     /// <summary>啟動服務器</summary>
+    public void Start()
+    {
+        if (_IsRunning)
+            return;
+
+        _cancellationTokenSource = new CancellationTokenSource();
+        _IsRunning = true;
+
+        // 創建標誌文件表示服務正在執行
+        _Provider.CreateFlagFile().GetAwaiter().GetResult();
+
+        // 啟動一般命令監聽任務
+        _CommandServerTask = Task.Run(() => ListenForCommandClientsAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+
+        // 啟動串流命令監聽任務
+        _StreamServerTask = Task.Run(() => ListenForStreamClientsAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
+    }
+
+    /// <summary>停止服務器</summary>
+    public void Stop()
+    {
+        if (!_IsRunning)
+            return;
+
+        _IsRunning = false;
+        _cancellationTokenSource?.Cancel();
+
+        // 等待服務器任務完成
+        var tasks = new List<Task>();
+        if (_CommandServerTask != null)
+            tasks.Add(_CommandServerTask);
+        if (_StreamServerTask != null)
+            tasks.Add(_StreamServerTask);
+
+        if (tasks.Count > 0)
+        {
+            try
+            {
+                Task.WaitAll(tasks.ToArray());
+            }
+            catch (AggregateException ex)
+            {
+                // 忽略取消異常
+                ex.Handle(e => e is OperationCanceledException || e is TaskCanceledException);
+            }
+        }
+
+        // 刪除標誌文件
+        _Provider.CleanFlagFile().GetAwaiter().GetResult();
+    }
+
+    /// <summary>啟動服務器</summary>
+    /// <param name="cancellationToken">取消令牌</param>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         if (_IsRunning)
