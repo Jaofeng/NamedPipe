@@ -37,7 +37,7 @@ public class PipeLineService(IPipeLineProvider pipeLineProvider, ILogger<PipeLin
             _logger.LogInformation("正在啟動命名管道服務...");
 
             _pipeServer = _pipeLineProvider.CreateServer(_commandHandler, _streamHandler);
-            await _pipeServer.StartAsync();
+            await _pipeServer.StartAsync(stoppingToken);
 
             _logger.LogInformation("命名管道服務已啟動");
 
@@ -57,7 +57,7 @@ public class PipeLineService(IPipeLineProvider pipeLineProvider, ILogger<PipeLin
         {
             if (_pipeServer != null)
             {
-                await _pipeServer.StopAsync();
+                await _pipeServer.StopAsync(stoppingToken);
                 _logger.LogInformation("命名管道服務已停止");
             }
         }
@@ -72,7 +72,7 @@ public class PipeLineService(IPipeLineProvider pipeLineProvider, ILogger<PipeLin
 
         if (_pipeServer != null)
         {
-            await _pipeServer.StopAsync();
+            await _pipeServer.StopAsync(cancellationToken);
         }
 
         await base.StopAsync(cancellationToken);
