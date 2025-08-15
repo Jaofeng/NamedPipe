@@ -93,17 +93,18 @@ public class PipeServer
             return;
 
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cancellationToken = _cancellationTokenSource.Token;
+        _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+        var token = _cancellationTokenSource.Token;
         _IsRunning = true;
 
         // 創建標誌文件表示服務正在執行
         await _Provider.CreateFlagFile();
 
         // 啟動一般命令監聽任務
-        _CommandServerTask = Task.Run(() => ListenForCommandClientsAsync(cancellationToken), cancellationToken);
+        _CommandServerTask = Task.Run(() => ListenForCommandClientsAsync(token), token);
 
         // 啟動串流命令監聽任務
-        _StreamServerTask = Task.Run(() => ListenForStreamClientsAsync(cancellationToken), cancellationToken);
+        _StreamServerTask = Task.Run(() => ListenForStreamClientsAsync(token), token);
     }
 
     /// <summary>停止服務器</summary>
@@ -111,7 +112,7 @@ public class PipeServer
     {
         if (!_IsRunning)
             return;
-
+        _cancellationTokenSource?.Cancel();
         _IsRunning = false;
 
         // 等待服務器任務完成
@@ -126,14 +127,6 @@ public class PipeServer
             try
             {
                 await Task.WhenAll(tasks);
-            }
-            catch (TaskCanceledException)
-            {
-                // 預期的取消異常，忽略
-            }
-            catch (OperationCanceledException)
-            {
-                // 預期的取消異常，忽略
             }
             catch
             {
