@@ -265,13 +265,13 @@ dotnet run client
 
 ## 版本歷史
 
-### v1.01.32 (2025-08-13)
+### v1.02.37 (2025-08-15)
 - 🔧 **效能改善**: 修改 `PipeServer` 類別，將 `CancellationTokenSource` 改為可為 null，並在啟動和停止方法中新增取消邏輯，改善非同步處理的穩定性
 - ✅ **新增方法**: 新增 `Start` 和 `Stop` 同步方法
 - 🔧 **介面修改**: 修改 `StartAsync` 和 `StopAsync` 非同步方法傳入 `CancellationToken` 型態參數
-
-### v1.01.25 (2025-08-01)
 - 🔧 **程式碼清理**: 移除 `PipeLineOptions.ApplicationDataPath` 屬性
+- 🔧 **修正異常**: 改善 StartAsync 和 StopAsync 方法，使用取消令牌來管理任務，並移除不必要的異常處理
+- 📝 **文件更新**: 更新 `readme.md` 文件，新增使用範例和配置選項說明
 
 ### v1.01.20 (2025-07-22)
 - 🔧 **效能改善**: 將 `PipeServer` 的啟動方法修改為非同步，改善服務啟動效能
