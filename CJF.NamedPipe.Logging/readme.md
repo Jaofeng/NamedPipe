@@ -126,9 +126,6 @@ public interface IPipeLoggerProvider : ILoggerProvider
 {
     /// <summary>取得 PipeLoggerOptions。</summary>
     PipeLoggerOptions Options { get; }
-    
-    /// <summary>取得分類名稱。</summary>
-    string Category { get; }
 
     /// <summary>發送記錄條目到命名管道。</summary>
     /// <param name="logEntry">要發送的記錄條目。</param>
@@ -421,8 +418,11 @@ private async Task<bool> BatchHandler(StreamMessage message)
 
 ## 版本歷史
 
-### v1.02.32 (2025-11-26)
-- 🔧 **修正錯誤**: 修正會產生遞迴的嚴重錯誤
+### v1.02.42 (2025-11-26)
+- 🔧 **問題修正**: 修正 Stack Overflow 的嚴重錯誤
+  - 當日誌來源為 CJF.NamedPipe 命名空間時，跳過 StreamWriter 發送以避免無限遞迴
+  - 修改 PipeLogger，讓每個實例保存自己的 categoryName（修正共用 Category 屬性被覆寫的問題）
+  - 移除 IPipeLoggerProvider.Category 屬性
 
 ### v1.01.20 (2025-07-22)
 - 🔧 **非同步優化**: 將 SendLogEntry 方法修改為非同步，改善日誌處理效能
