@@ -418,7 +418,7 @@ private async Task<bool> BatchHandler(StreamMessage message)
 
 ## 版本歷史
 
-### v1.02.42 (2025-11-26)
+### v1.02.45 (2025-11-26)
 - 🔧 **問題修正**: 修正 Stack Overflow 的嚴重錯誤
   - 當日誌來源為 CJF.NamedPipe 命名空間時，跳過 StreamWriter 發送以避免無限遞迴
   - 修改 PipeLogger，讓每個實例保存自己的 categoryName（修正共用 Category 屬性被覆寫的問題）
