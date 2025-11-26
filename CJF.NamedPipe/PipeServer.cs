@@ -340,9 +340,14 @@ public class PipeServer
                 await server.FlushAsync(cancellationToken);
                 return true;
             }
+            catch (IOException)
+            {
+                _Logger?.LogDebug("客戶端連接已中斷，停止串流寫入");
+                return false;
+            }
             catch (Exception ex)
             {
-                _Logger?.LogError(ex, "串流寫入時發生錯誤");
+                _Logger?.LogError(ex, "串流寫入時發生異常");
                 return false;
             }
         }
@@ -372,6 +377,10 @@ public class PipeServer
             await server.WriteAsync(responseBuffer);
             await server.FlushAsync();
         }
+        catch (IOException)
+        {
+            _Logger?.LogDebug("客戶端連接已中斷，無法發送回應訊息");
+        }
         catch (Exception ex)
         {
             _Logger?.LogError(ex, "發送回應時發生錯誤");
@@ -400,9 +409,13 @@ public class PipeServer
             await server.WriteAsync(buffer);
             await server.FlushAsync();
         }
+        catch (IOException)
+        {
+            _Logger?.LogDebug("客戶端連接已中斷，無法發送錯誤串流訊息");
+        }
         catch (Exception ex)
         {
-            _Logger?.LogError(ex, "發送串流錯誤訊息時發生錯誤");
+            _Logger?.LogError(ex, "發送錯誤串流訊息時發生錯誤");
         }
     }
     /// <summary>讀取並驗證消息</summary>
