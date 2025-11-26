@@ -85,6 +85,7 @@ public class PipeClient
             try
             {
                 await client.ConnectAsync(connectionCts.Token);
+                connectionCts.Cancel(); // 取消連接超時
             }
             catch (OperationCanceledException) when (connectionCts.IsCancellationRequested)
             {
@@ -146,6 +147,7 @@ public class PipeClient
             await client.WriteAsync(BitConverter.GetBytes(buffer.Length).AsMemory(0, 4), writeCts.Token);
             await client.WriteAsync(buffer, writeCts.Token);
             await client.FlushAsync(writeCts.Token);
+            writeCts.Cancel(); // 取消寫入超時
         }
         catch (OperationCanceledException) when (writeCts.IsCancellationRequested)
         {
@@ -213,11 +215,13 @@ public class PipeClient
             using var commandClient = new NamedPipeClientStream(".", CommandPipeName, PipeDirection.InOut);
             using var cts1 = new CancellationTokenSource(500);
             await commandClient.ConnectAsync(cts1.Token);
+            cts1.Cancel(); // 取消連接超時
 
             // 測試串流命令管道
             using var streamClient = new NamedPipeClientStream(".", StreamPipeName, PipeDirection.InOut);
             using var cts2 = new CancellationTokenSource(500);
             await streamClient.ConnectAsync(cts2.Token);
+            cts2.Cancel(); // 取消連接超時
 
             return true;
         }
@@ -240,6 +244,7 @@ public class PipeClient
         try
         {
             await client.ReadExactlyAsync(lengthBuffer, cts.Token);
+            cts.Cancel(); // 取消讀取超時
         }
         catch (OperationCanceledException) when (cts.IsCancellationRequested)
         {
