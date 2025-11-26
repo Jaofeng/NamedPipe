@@ -38,4 +38,7 @@ public sealed class PipeLineOptions
 
     /// <summary>獲取或設置讀寫超時時間（毫秒）。</summary>
     public int ReadWriteTimeoutMs { get; set; } = 5000;
+
+    /// <summary>獲取或設置心跳間隔時間（毫秒）。設為 0 或負數表示停用心跳。預設 30000 (30秒)。</summary>
+    public int HeartbeatIntervalMs { get; set; } = 30000;
 }

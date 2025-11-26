@@ -325,10 +325,13 @@ public class PipeServer
     private async Task HandleStreamCommandAsync(NamedPipeServerStream server, CommandMessage message)
     {
         var cancellationToken = _cancellationTokenSource!.Token;
+        var heartbeatInterval = _Options.HeartbeatIntervalMs;
+        var connectionAlive = true;
 
         // 創建串流寫入器
         async Task<bool> StreamWriter(StreamMessage streamMessage)
         {
+            if (!connectionAlive) return false;
             try
             {
                 string json = streamMessage.Serialize();
@@ -342,14 +345,46 @@ public class PipeServer
             }
             catch (IOException)
             {
+                connectionAlive = false;
                 _Logger?.LogDebug("客戶端連接已中斷，停止串流寫入");
                 return false;
             }
             catch (Exception ex)
             {
+                connectionAlive = false;
                 _Logger?.LogError(ex, "串流寫入時發生異常");
                 return false;
             }
+        }
+
+        // 啟動心跳任務
+        Task? heartbeatTask = null;
+        if (heartbeatInterval > 0)
+        {
+            heartbeatTask = Task.Run(async () =>
+            {
+                var heartbeatMessage = new StreamMessage
+                {
+                    Content = string.Empty,
+                    Type = StreamMessageTypes.Heartbeat,
+                    IsFinished = false
+                };
+
+                while (!cancellationToken.IsCancellationRequested && connectionAlive)
+                {
+                    try
+                    {
+                        await Task.Delay(heartbeatInterval, cancellationToken);
+                        if (!connectionAlive) break;
+                        if (!await StreamWriter(heartbeatMessage))
+                            break;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
+            }, cancellationToken);
         }
 
         try
@@ -361,6 +396,14 @@ public class PipeServer
         {
             // 發送錯誤訊息
             await StreamWriter(new StreamMessage { Content = $"執行命令時發生錯誤: {ex.Message}", Type = StreamMessageTypes.Error, IsFinished = true });
+        }
+        finally
+        {
+            connectionAlive = false;
+            if (heartbeatTask != null)
+            {
+                try { await heartbeatTask; } catch { }
+            }
         }
     }
 

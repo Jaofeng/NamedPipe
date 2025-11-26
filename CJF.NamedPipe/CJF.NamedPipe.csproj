@@ -10,22 +10,18 @@
 		<AssemblyName>CJF.NamedPipe</AssemblyName>
 		<Description>NamedPipe Services</Description>
 		<Copyright>Copyright(c) 2025 Chen Jaofeng all right reserved.</Copyright>
-		<Version>1.02.43</Version>
+		<Version>1.02.52</Version>
 		<Authors>Chen Jaofeng</Authors>
 		<Company>Chen Jaofeng</Company>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<PackageTags>Utility;NamedPipe;Extensions</PackageTags>
 		<PackageReleaseNotes>
-v1.02.43 (2025-11-26)
+v1.02.52 (2025-11-26)
+- ✅ **新增心跳機制**: 伺服端定期發送心跳訊息給客戶端，提早偵測斷線狀況
+- ✅ **新增 StreamMessageTypes.Heartbeat**: 新增心跳訊息類型
+- ✅ **新增 PipeLineOptions.HeartbeatIntervalMs**: 可配置心跳間隔時間（預設 30 秒），設為 0 或負數可停用
+- 🔧 **客戶端自動忽略心跳**: PipeClient 自動忽略心跳訊息，不傳遞給使用者處理器
 - 🔧 **改善錯誤處理**: 在串流寫入和回應發送過程中，增加對 IOException 的捕獲，並記錄客戶端連接中斷的調試訊息
-
-v1.02.37 (2025-08-15)
-- 🔧 **效能改善**: 修改 `PipeServer` 類別，將 `CancellationTokenSource` 改為可為 null，並在啟動和停止方法中新增取消邏輯，改善非同步處理的穩定性
-- ✅ **新增方法**: 新增 `Start` 和 `Stop` 同步方法
-- 🔧 **介面修改**: 修改 `StartAsync` 和 `StopAsync` 非同步方法傳入 `CancellationToken` 型態參數
-- 🔧 **程式碼清理**: 移除 `PipeLineOptions.ApplicationDataPath` 屬性
-- 🔧 **修正異常**: 改善 StartAsync 和 StopAsync 方法，使用取消令牌來管理任務，並移除不必要的異常處理
-- 📝 **文件更新**: 更新 `readme.md` 文件，新增使用範例和配置選項說明
 		</PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>

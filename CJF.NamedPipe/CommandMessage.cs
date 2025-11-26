@@ -52,7 +52,9 @@ public enum StreamMessageTypes
     /// <summary>錯誤訊息</summary>
     Error,
     /// <summary>成功訊息</summary>
-    Success
+    Success,
+    /// <summary>心跳訊息</summary>
+    Heartbeat
 }
 
 /// <summary>表示串流回應訊息</summary>
