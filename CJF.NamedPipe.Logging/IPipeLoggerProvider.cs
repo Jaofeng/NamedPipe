@@ -9,8 +9,6 @@ public interface IPipeLoggerProvider : ILoggerProvider
 {
     /// <summary>取得 PipeLoggerOptions。</summary>
     PipeLoggerOptions Options { get; }
-    /// <summary>取得分類名稱。</summary>
-    string Category { get; }
 
     /// <summary>發送記錄條目到命名管道。</summary>
     /// <param name="logEntry">要發送的記錄條目。</param>

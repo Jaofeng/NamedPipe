@@ -23,8 +23,6 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
 
     /// <summary>取得 PipeLoggerOptions。</summary>
     public PipeLoggerOptions Options { get; private set; } = opts.Value;
-    /// <summary>取得分類名稱。</summary>
-    public string Category { get; private set; } = string.Empty;
 
     /// <summary>發送記錄條目到命名管道。</summary>
     /// <param name="logEntry">要發送的記錄條目。</param>
@@ -79,8 +77,7 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
     /// <param name="categoryName">分類名稱</param>
     public ILogger CreateLogger(string categoryName)
     {
-        Category = categoryName;
-        return new PipeLogger(this);
+        return new PipeLogger(this, categoryName);
     }
     /// <summary>釋放資源。</summary>
     public void Dispose()
