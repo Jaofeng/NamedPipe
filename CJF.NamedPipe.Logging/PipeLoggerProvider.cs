@@ -31,6 +31,12 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
     public async Task SendLogEntry(LogEntry logEntry)
     {
         if (_disposed) return;
+
+        // 防止遞迴：如果日誌來源是 CJF.NamedPipe 命名空間，跳過 StreamWriter 發送
+        // 避免 StreamWriter → LogError → SendLogEntry → StreamWriter 的無限遞迴導致 Stack Overflow
+        if (logEntry.Category.StartsWith("CJF.NamedPipe"))
+            return;
+
         var guids = _StreamHandlers.Keys.ToArray();
         if (guids.Length == 0) return;
         var streamMessage = new StreamMessage
@@ -49,6 +55,8 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
         };
         foreach (var guid in guids)
         {
+            if (_disposed) return;
+            if (string.IsNullOrWhiteSpace(guid)) continue;
             try
             {
                 if (!_StreamHandlers.TryGetValue(guid, out var handler) || handler is null)
@@ -58,7 +66,11 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
             }
             catch
             {
-                _StreamHandlers.TryRemove(guid, out _);
+                try
+                {
+                    _StreamHandlers.TryRemove(guid, out _);
+                }
+                catch { }
             }
         }
     }

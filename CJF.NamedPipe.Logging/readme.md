@@ -421,6 +421,9 @@ private async Task<bool> BatchHandler(StreamMessage message)
 
 ## 版本歷史
 
+### v1.02.32 (2025-11-26)
+- 🔧 **修正錯誤**: 修正會產生遞迴的嚴重錯誤
+
 ### v1.01.20 (2025-07-22)
 - 🔧 **非同步優化**: 將 SendLogEntry 方法修改為非同步，改善日誌處理效能
 - 🔧 **執行緒安全**: 使用 ConcurrentDictionary 來管理串流處理器，改善效能和執行緒安全性
