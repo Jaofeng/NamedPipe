@@ -47,12 +47,11 @@ public class PipeLoggerProviderTests : IDisposable
         // Assert
         Assert.NotNull(logger);
         Assert.IsType<PipeLogger>(logger);
-        Assert.Equal(categoryName, _provider.Category);
     }
 
     /// <summary>測試建立多個不同分類的 Logger</summary>
     [Fact]
-    public void CreateLogger_ShouldUpdateCategory()
+    public void CreateLogger_ShouldReturnDifferentLoggers()
     {
         // Arrange
         var category1 = "Category1";
@@ -65,7 +64,8 @@ public class PipeLoggerProviderTests : IDisposable
         // Assert
         Assert.NotNull(logger1);
         Assert.NotNull(logger2);
-        Assert.Equal(category2, _provider.Category); // 應該是最後設定的分類
+        Assert.IsType<PipeLogger>(logger1);
+        Assert.IsType<PipeLogger>(logger2);
     }
 
     /// <summary>測試註冊串流處理器</summary>

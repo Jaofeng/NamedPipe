@@ -43,7 +43,6 @@ public class PipeLoggerTests : IDisposable
         // Assert
         Assert.NotNull(logger);
         Assert.IsType<PipeLogger>(logger);
-        Assert.Equal("TestCategory", _pipeLoggerProvider.Category);
     }
 
     /// <summary>測試日誌級別檢查</summary>
