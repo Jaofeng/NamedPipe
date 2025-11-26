@@ -8,10 +8,11 @@ namespace CJF.NamedPipe.Logging;
 
 #region Public Class : PipeLogger
 /// <summary>命名管道記錄器。</summary>
-public class PipeLogger([NotNull] PipeLoggerProvider provider) : ILogger
+public class PipeLogger([NotNull] PipeLoggerProvider provider, string categoryName) : ILogger
 {
     private readonly LoggerExternalScopeProvider _ScopeProvider = new();
     private readonly PipeLoggerProvider _Provider = provider;
+    private readonly string _CategoryName = categoryName;
 
     /// <summary>開始一個作用域。</summary>
     /// <typeparam name="TState">作用域狀態的類型。</typeparam>
@@ -42,7 +43,7 @@ public class PipeLogger([NotNull] PipeLoggerProvider provider) : ILogger
         {
             Timestamp = DateTime.Now,
             LogLevel = logLevel,
-            Category = _Provider.Category,
+            Category = _CategoryName,
             Message = message,
             Exception = exception?.ToString()
         };
