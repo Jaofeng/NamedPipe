@@ -34,9 +34,9 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
         // 避免 StreamWriter → LogError → SendLogEntry → StreamWriter 的無限遞迴導致 Stack Overflow
         if (logEntry.Category.StartsWith("CJF.NamedPipe"))
             return;
-
-        var guids = _StreamHandlers.Keys.ToArray();
-        if (guids.Length == 0) return;
+        // 如果沒有註冊的串流處理器，則不進行任何操作
+        if (_StreamHandlers.IsEmpty) return;
+        // 建立 StreamMessage 物件
         var streamMessage = new StreamMessage
         {
             Content = logEntry.Message,
@@ -51,19 +51,25 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
                 _ => StreamMessageTypes.Info
             },
         };
+        // 複製目前的鍵集合以避免在迭代時修改集合
+        var guids = _StreamHandlers.Keys.ToArray();
+        // 遍歷所有註冊的串流處理器並發送日誌訊息
         foreach (var guid in guids)
         {
             if (_disposed) return;
             if (string.IsNullOrWhiteSpace(guid)) continue;
             try
             {
+                // 嘗試取得對應的串流處理器
                 if (!_StreamHandlers.TryGetValue(guid, out var handler) || handler is null)
                     continue;
+                // 發送日誌訊息，若回傳 false 則移除該處理器
                 if (await handler!(streamMessage) is not true)
                     _StreamHandlers.TryRemove(guid, out _);
             }
             catch
             {
+                // 發生例外時，移除該處理器
                 try
                 {
                     _StreamHandlers.TryRemove(guid, out _);
@@ -96,6 +102,7 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
         // 檢查是否已經註冊過相同的處理器
         if (_StreamHandlers.ContainsKey(guid))
             return Task.FromResult(false);
+        // 註冊新的處理器
         lock (_lock)
         {
             _StreamHandlers.TryAdd(guid, writer);
