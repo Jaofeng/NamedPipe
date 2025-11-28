@@ -327,11 +327,14 @@ public class PipeServer
         var cancellationToken = _cancellationTokenSource!.Token;
         var heartbeatInterval = _Options.HeartbeatIntervalMs;
         var connectionAlive = true;
+        var writeLock = new SemaphoreSlim(1, 1);  // 寫入鎖定，防止並發寫入導致資料交錯
 
         // 創建串流寫入器
         async Task<bool> StreamWriter(StreamMessage streamMessage)
         {
             if (!connectionAlive) return false;
+            await writeLock.WaitAsync(cancellationToken);  // 獲取鎖定
+
             try
             {
                 string json = streamMessage.Serialize();
@@ -354,6 +357,10 @@ public class PipeServer
                 connectionAlive = false;
                 _Logger?.LogError(ex, "串流寫入時發生異常");
                 return false;
+            }
+            finally
+            {
+                writeLock.Release();  // 釋放鎖定
             }
         }
 
