@@ -64,7 +64,7 @@ public sealed class PipeLoggerProvider(IOptions<PipeLoggerOptions> opts) : IPipe
                 if (!_StreamHandlers.TryGetValue(guid, out var handler) || handler is null)
                     continue;
                 // 發送日誌訊息，若回傳 false 則移除該處理器
-                if (await handler!(streamMessage) is not true)
+                if (await handler(streamMessage) is not true)
                     _StreamHandlers.TryRemove(guid, out _);
             }
             catch
